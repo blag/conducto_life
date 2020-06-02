@@ -1,13 +1,14 @@
-# Matt Rixman - Explanation Challenge Feedback
+# Notes on Explaining Conducto
 
-I can write concisely, but my prewriting is messy and verbose.  Unless you're interested in **why** [README.md](README.md) looks the way it does, consider just moving on to that page.
+This file is mostly pre-writing.  Unless you're interested in *why* [README.md](README.md) looks the way it does, consider just moving on to that page.
 
-...If you're still here, forgive the lack of polish.
+...If you're still here, I'm sorry to have gone on at such length.  I didn't have time to be brief.
 
 ## First Impressions
 
 I started my journey with Conducto on this page:
 https://medium.com/conducto/introduction-to-conducto-pipelines-2759ecf876a2
+
 First impressions only happen once, so I took some notes...
 
 ####  No module named 'conducto'
@@ -51,18 +52,17 @@ This should happen pretty early in the onboarding process to protect new users f
 
 #### A Dependency Worry
 
-I ran across [a case](https://github.com/conducto/conducto/issues/3) where I couldn't talk to conducto.com.  Maybe it is possible to carry on development using just the cli, or to host something locally, but it wasn't apparent--so I was dead in the water.  Is the plan to provide something like that?  If not then I fear that having the edit-run-pray loop depend on conducto.com might turn newcomers away.
+I ran across [a case](https://github.com/conducto/conducto/issues/3) where I couldn't talk to conducto.com.  Maybe it is possible to carry on development using just the cli, or to host something locally, but it wasn't apparent--so I was dead in the water.  Are we planning to support a free conducto-not-in-the-loop workflow?  If not then I fear that having the edit-run-pray loop depend on conducto.com might turn newcomers away.
 
 ## A Plan Emerges
 
-The medium post above occasionally uses words like 'simple' and 'easy'.
+The "Intro to Conducto Pipelines" post above occasionally uses words like 'simple' and 'easy'.
 I don't doubt that once you know the ropes, writing a pipeline in conduco is easy.
 And I won't argue that the interface isn't simple.
 But there is a significant serving of complexity to be digested almost immediately upon starting to use Conducto for the first time.
 
-So I would propose we create space for that complexity to sink in and defer the "first steps"for a second post.
-We need to convince them to spend the additional effort to walk through an example, rather than just assume that they're already game.
-Users that want to go straight to a "hello world" can just look at the pictures and skip ahead to a "First Steps" post.
+So I would propose we create space for that complexity to sink in and defer the "first steps" for a second post.
+Let's convince them to that walking through a "hello world" is a good idea, rather than just assuming that they're already game.
 
 #### An introduction to Conducto should...
 
@@ -102,9 +102,9 @@ Such a user would be here because they're weighing these alternatives:
 
 ##### Showcase its strengths
 
-They wouldn't be on this page unless they thought maybe a pipeline was for them, but we should reassure the user that they're looking in the right place for whatever problem they want to solve by showing Conducto being actually useful.
+They wouldn't be on this page unless maybe a pipeline solves their problem, but we should reassure the user that they're looking in the right place by showing Conducto being actually useful.
 
-In case they're already familliar with the alternatives, the use case should be something that would be harder to do in the alternatives (Lazy Node Placement?)
+The example usage should be something that would be messier if done via a Conducto alternative (Lazy Node Placement maybe?)
 
 ##### Lean on User Expertise
 
@@ -121,10 +121,3 @@ The last node can create an animated gif, and intermediate nodes can show the gr
 
 It took a moment to realize that the web GUI was controlling the docker daemon on my local machine.
 Until that happened I was a bit bewildered.  This section can be short, a diagram and a sentence or two, but without knowing the basic setup it will be hard for users to right themselves if they've erred.
-
-##### Give them a jumping off point
-
-Some users will want to tinker with code and only go read the tutorials once they get stuck.
-These will want to start with a working pipeline and make changes.
-Having the intro be the README in a github repo containing that pipeline means that they're already where they need to be.
-Having that repo not contain too much else makes it easy to make small changes and morph it into their own vision.

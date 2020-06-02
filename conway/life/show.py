@@ -5,11 +5,11 @@ from PIL import Image, ImageDraw, ImageFont
 
 # some parameters for image creation
 color = {
-    "0" : (230, 230, 230), # dead
-    "1" : (0, 0, 0)        # alive
+    "0" : (223, 223, 224),  # dead
+    "1" : (41,  43,  47)  # alive
 }
-bg = (180, 160, 210)
-text = (0, 0, 0)
+bg = (29, 31, 33)
+text = (149, 255, 66)
 cell_size = 15
 border_size = 15
 

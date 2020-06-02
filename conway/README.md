@@ -10,8 +10,7 @@ This is a toy project, it includes several commands which together let the user 
  - reproduce
  - crowd
  - isolate
- - [picture](./life/show.py)
- - [animate](./life/show.py)
+ - [to_png](./life/show.py)
 
 # Installation
 
