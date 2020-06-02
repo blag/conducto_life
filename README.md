@@ -1,6 +1,7 @@
 # Conway's Game of Life
+## In a conducto pipeline!
 
-In a conducto pipeline!
+For more about conducto, check out https://medium.com/@mattrixman/introduction-to-pipelines-bb7f90dc2bee
 
 ## Prerequisites
 
@@ -13,7 +14,9 @@ Clone the code:
     git clone https://github.com/MatrixManAtYrService/conducto_life.git
     cd conducto_life
 
-You'll want python 3.6.1 or higher.  It's also often a good idea to work in a virtual environment:
+You'll want python 3.6.1 or higher.
+
+It's also often a good idea to work in a virtual environment:
 
     python3 -m venv pipeline
     source ./pipeline/bin/activate
