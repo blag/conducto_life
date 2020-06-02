@@ -18,22 +18,18 @@ game_of_life= co.Image(dockerfile='conway/Dockerfile',
 # use strict mode so that errors draw attention
 header = "set -euo pipefail"
 
-#    to_grid '11000011
-#             01010011
-#             10001001
-#             10111000
-#             10000000
-#             00100011
-#             10101001
-#             01001100' > grid.json
 
 # create the start state and stash it
 initialize_grid = cleandoc('''
     {header}
-    to_grid '0101
-             0010
-             1110
-             0000' > grid.json
+    to_grid '11000011
+             01010011
+             10001001
+             10111000
+             10000000
+             00100011
+             10101001
+             01001100' > grid.json
 
     # store it as the only item in a list (subsequent grids coming soon)
     cat grid.json | jq '[.]' | tee grids.json
@@ -151,17 +147,18 @@ next_grid = cleandoc('''
      conducto-temp-data gets --name ignores_{i}       | jq '.[]' > ignores.json
 
      # make grid from them
-     cat isolations.json survivals.json crowdings.json reproductions.json \\
+     cat isolations.json survivals.json crowdings.json reproductions.json ignores.json \\
          | jq -s . \\
          | to_grid \\
-         | tee grid.json
+         | tee new_grid.json
 
 
      # append it to the grid list
-     cat grid.json \\
-         | jq ". |= . + [ $(cat grid.json | jq -c .) ]" \\
-         | tee grids.json
+     cat grids.json | jq ". + [$(cat new_grid.json)]" \\
+         | tee updated_grids.json \\
+         | conducto-temp-data puts --name "grids"
 
+     cat updated_grids.json
 ''')
 
 # Pipeline Definition
