@@ -12,22 +12,23 @@ game_of_life= co.Image(dockerfile='conway/Dockerfile',
 # Command Templates
 ###################
 
-# use strict mode so that errors draw attention
+# for all commands, use strict mode so that errors draw attention
 header = "set -euo pipefail"
 
-# TODO: these make more sense as functions:
 
 # create the start state and stash it
 initialize_grid = cleandoc('''
     {header}
-    to_grid '11000011
-             01010011
-             10001001
-             10111000
-             10000000
-             00100011
-             10101001
-             01001100' > grid.json
+    to_grid '0010000000
+             0010000011
+             0010100011
+             0100010000
+             0101110001
+             0100000001
+             0001000111
+             0010100000
+             0101010010
+             0010011000' > grid.json
 
     # store it as the only item in a list (subsequent grids coming soon)
     cat grid.json | jq '[.]' | tee grids.json
@@ -35,24 +36,27 @@ initialize_grid = cleandoc('''
 ''').format(header=header)
 
 # normalize grid representation
-show_grid = cleandoc('''
+show_grid_template = cleandoc('''
      {header}
      # get most recent grid
      conducto-temp-data gets --name "grids" | jq '.[-1]' > grid.json
 
      # make an image
-     cat grid.json | to_png grid.png {i}
-     conducto-temp-data put --name "image_{i}.png" --file grid.png
-     IMAGE_URL=$(conducto-temp-data url --name "image_{i}.png" | sed 's/"//g')
+     cat grid.json | to_png grid.png {tick}
+     conducto-temp-data put --name "image_{tick}.png" --file grid.png
+     IMAGE_URL=$(conducto-temp-data url --name "image_{tick}.png" | sed 's/"//g')
 
      # display it
      echo -n "<ConductoMarkdown>
-     ![grid{i}]($IMAGE_URL)
+     ![grid{tick}]($IMAGE_URL)
      </ConductoMarkdown>"
 ''')
 
+def show_grid(tick):
+    return show_grid_template.format(header=header, tick=tick)
+
 # create metadata for each cell
-find_neighborhoods = cleandoc('''
+find_neighborhoods_template = cleandoc('''
      {header}
      # get most recent grid
      conducto-temp-data gets --name "grids" | jq '.[-1]' > grid.json
@@ -63,86 +67,109 @@ find_neighborhoods = cleandoc('''
      cat neighborhoods.json | jq '[first, last]'
 
      # store neighborhoods for rule consumption
-     cat neighborhoods.json | conducto-temp-data puts --name neighborhoods_{i}
+     cat neighborhoods.json | conducto-temp-data puts --name neighborhoods_{tick}
 ''')
+
+def find_neighborhoods(tick):
+    return find_neighborhoods_template.format(header=header, tick=tick)
 
 rule_header_template = header + '\n' + cleandoc('''
      # get neighborhoods
-     conducto-temp-data gets --name neighborhoods_{i} > neighborhoods.json
+     conducto-temp-data gets --name neighborhoods_{tick} > neighborhoods.json
 ''')
 
 # which cells die because of too-few neighbors?
-isolate = cleandoc('''
+isolate_template = cleandoc('''
      {rule_header}
      cat neighborhoods.json \\
          | jq 'map(select(.alive == true and .neighbors < 2)
                    | .alive = false)' \\
          | tee isolations.json \\
-         | conducto-temp-data puts --name isolations_{i}
+         | conducto-temp-data puts --name isolations_{tick}
 
      cat isolations.json
 ''')
 
+def isolate(tick):
+    rule_header = rule_header_template.format(tick=tick)
+    return isolate_template.format(rule_header=rule_header, tick=tick)
+
 # which cells survive because of ideal neighbor density?
-survive = cleandoc('''
+survive_template = cleandoc('''
      {rule_header}
      cat neighborhoods.json \\
          | jq 'map(select(.alive == true
                           and (.neighbors == 2 or .neighbors == 3))) '\\
          | tee survivals.json \\
-         | conducto-temp-data puts --name survivals_{i}
+         | conducto-temp-data puts --name survivals_{tick}
 
      cat survivals.json
 ''')
 
+def survive(tick):
+    rule_header = rule_header_template.format(tick=tick)
+    return survive_template.format(rule_header=rule_header, tick=tick)
+
 # which cells die because of crowding?
-crowd = cleandoc('''
+crowd_template = cleandoc('''
      {rule_header}
      cat neighborhoods.json \\
          | jq 'map(select(.alive == true and .neighbors > 3)
                    | .alive = false)' \\
          | tee crowdings.json \\
-         | conducto-temp-data puts --name crowdings_{i}
+         | conducto-temp-data puts --name crowdings_{tick}
 
      cat crowdings.json
 ''')
 
+def crowd(tick):
+    rule_header = rule_header_template.format(tick=tick)
+    return crowd_template.format(rule_header=rule_header, tick=tick)
+
 # which cells come alive because of reproduction?
-reproduce = cleandoc('''
+reproduce_template = cleandoc('''
      {rule_header}
      cat neighborhoods.json \\
          | jq 'map(select(.alive == false and .neighbors == 3)
                    | .alive = true)' \\
          | tee reproductions.json \\
-         | conducto-temp-data puts --name reproductions_{i}
+         | conducto-temp-data puts --name reproductions_{tick}
 
      cat reproductions.json
 ''')
 
+def reproduce(tick):
+    rule_header = rule_header_template.format(tick=tick)
+    return reproduce_template.format(rule_header=rule_header, tick=tick)
+
 # which cells were dead and stay dead
-ignore = cleandoc('''
+ignore_template = cleandoc('''
      {rule_header}
      cat neighborhoods.json \\
          | jq 'map(select(.alive == false and .neighbors != 3)
                    | .alive = false)' \\
          | tee ignores.json \\
-         | conducto-temp-data puts --name ignores_{i}
+         | conducto-temp-data puts --name ignores_{tick}
 
      cat ignores.json
 ''')
 
+def ignore(tick):
+    rule_header = rule_header_template.format(tick=tick)
+    return ignore_template.format(rule_header=rule_header, tick=tick)
+
 # pull updated cells into grid for next tick
-next_grid = cleandoc('''
+next_grid_template = cleandoc('''
      {header}
      # get grids so far
      conducto-temp-data gets --name "grids" > grids.json
 
      # get rule outputs
-     conducto-temp-data gets --name isolations_{i}    | jq '.[]' > isolations.json
-     conducto-temp-data gets --name survivals_{i}     | jq '.[]' > survivals.json
-     conducto-temp-data gets --name crowdings_{i}     | jq '.[]' > crowdings.json
-     conducto-temp-data gets --name reproductions_{i} | jq '.[]' > reproductions.json
-     conducto-temp-data gets --name ignores_{i}       | jq '.[]' > ignores.json
+     conducto-temp-data gets --name isolations_{tick}    | jq '.[]' > isolations.json
+     conducto-temp-data gets --name survivals_{tick}     | jq '.[]' > survivals.json
+     conducto-temp-data gets --name crowdings_{tick}     | jq '.[]' > crowdings.json
+     conducto-temp-data gets --name reproductions_{tick} | jq '.[]' > reproductions.json
+     conducto-temp-data gets --name ignores_{tick}       | jq '.[]' > ignores.json
 
      # make grid from them
      cat isolations.json survivals.json crowdings.json reproductions.json ignores.json \\
@@ -159,7 +186,10 @@ next_grid = cleandoc('''
      cat updated_grids.json
 ''')
 
-animate = cleandoc('''
+def next_grid(tick):
+    return next_grid_template.format(header=header, tick=tick)
+
+animate_template = cleandoc('''
     {header}
     # get image files for each iteration
     IFS=' '
@@ -179,51 +209,49 @@ animate = cleandoc('''
     </ConductoMarkdown>"
 ''')
 
+def animate(image_list):
+    return animate_template.format(header=header,
+                                   image_list=image_list)
+
 # Pipeline Definition
 #####################
 
+num_ticks = 15
+ticks = [ str(i).zfill(len(str(num_ticks))) for i in range(num_ticks) ]
+
 # root node
 def life() -> co.Serial:
+
 
     with co.Serial(image=game_of_life) as pipeline:
 
         pipeline["initialize grid"] = co.Exec(initialize_grid)
 
+        image_names = []
         # TODO: instead of modeling a fixed number of clock ticks
         # use a lazy node to extend this until a grid state is repeated
-        image_names = []
-        for i in range(5):
-
-            # turn the templates above into commands for this tick
-            def cmd(template):
-                rule_header = rule_header_template.format(i=i)
-                output = template.format(i=i,
-                                         header=header,
-                                         rule_header=rule_header)
-                return output
-
-            with co.Serial(name=f"tick {i}",
+        for tick in ticks:
+            with co.Serial(name=f"tick {tick}",
                            image=game_of_life) as iteration:
 
-                iteration["show grid"]      = co.Exec(cmd(show_grid))
-                iteration["find neighbors"] = co.Exec(cmd(find_neighborhoods))
+                iteration["show grid"]      = co.Exec(show_grid(tick))
+                iteration["find neighbors"] = co.Exec(find_neighborhoods(tick))
 
                 with co.Parallel(name=f"apply_rules",
                                image=game_of_life) as rules:
 
-                    rules["isolate"]   = co.Exec(cmd(isolate))
-                    rules["survive"]   = co.Exec(cmd(survive))
-                    rules["crowd"]     = co.Exec(cmd(crowd))
-                    rules["reproduce"] = co.Exec(cmd(reproduce))
-                    rules["ignore"]    = co.Exec(cmd(ignore))
+                    rules["isolate"]   = co.Exec(isolate(tick))
+                    rules["survive"]   = co.Exec(survive(tick))
+                    rules["crowd"]     = co.Exec(crowd(tick))
+                    rules["reproduce"] = co.Exec(reproduce(tick))
+                    rules["ignore"]    = co.Exec(ignore(tick))
 
-                iteration["next grid"] = co.Exec(cmd(next_grid))
+                iteration["next grid"] = co.Exec(next_grid(tick))
 
-            image_names.append(f"image_{i}.png")
+            image_names.append(f"image_{tick}.png")
 
         image_list = " ".join(image_names)
-        pipeline["animate"] = co.Exec(animate.format(header=header,
-                                                     image_list=image_list))
+        pipeline["animate"] = co.Exec(animate(image_list))
 
     return pipeline
 
