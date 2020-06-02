@@ -9,15 +9,13 @@ import sys
 game_of_life= co.Image(dockerfile='conway/Dockerfile',
                        context='conway')
 
-# for animating the whole story
-# imagemagick = co.Image(image="jweissig/alpine-imagemagick:latest")
-
 # Command Templates
 ###################
 
 # use strict mode so that errors draw attention
 header = "set -euo pipefail"
 
+# TODO: these make more sense as functions:
 
 # create the start state and stash it
 initialize_grid = cleandoc('''
@@ -161,6 +159,26 @@ next_grid = cleandoc('''
      cat updated_grids.json
 ''')
 
+animate = cleandoc('''
+    {header}
+    # get image files for each iteration
+    IFS=' '
+    for image in {image_list}
+    do
+        conducto-temp-data get --name $image --file $image
+    done
+
+    # make a gif
+    convert -delay 100 image_*.png -loop 0 life.gif
+    conducto-temp-data put --name "life.gif" --file "life.gif"
+    IMAGE_URL=$(conducto-temp-data url --name "life.gif" | sed 's/"//g')
+
+    # display it
+    echo -n "<ConductoMarkdown>
+    ![grids]($IMAGE_URL)
+    </ConductoMarkdown>"
+''')
+
 # Pipeline Definition
 #####################
 
@@ -173,7 +191,8 @@ def life() -> co.Serial:
 
         # TODO: instead of modeling a fixed number of clock ticks
         # use a lazy node to extend this until a grid state is repeated
-        for i in range(3):
+        image_names = []
+        for i in range(5):
 
             # turn the templates above into commands for this tick
             def cmd(template):
@@ -192,13 +211,19 @@ def life() -> co.Serial:
                 with co.Parallel(name=f"apply_rules",
                                image=game_of_life) as rules:
 
-                    rules["isolate"] = co.Exec(cmd(isolate))
-                    rules["survive"] = co.Exec(cmd(survive))
-                    rules["crowd"] = co.Exec(cmd(crowd))
+                    rules["isolate"]   = co.Exec(cmd(isolate))
+                    rules["survive"]   = co.Exec(cmd(survive))
+                    rules["crowd"]     = co.Exec(cmd(crowd))
                     rules["reproduce"] = co.Exec(cmd(reproduce))
-                    rules["ignore"] = co.Exec(cmd(ignore))
+                    rules["ignore"]    = co.Exec(cmd(ignore))
 
                 iteration["next grid"] = co.Exec(cmd(next_grid))
+
+            image_names.append(f"image_{i}.png")
+
+        image_list = " ".join(image_names)
+        pipeline["animate"] = co.Exec(animate.format(header=header,
+                                                     image_list=image_list))
 
     return pipeline
 
