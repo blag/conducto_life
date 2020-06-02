@@ -1,6 +1,6 @@
 # Notes on Explaining Conducto
 
-This file is mostly pre-writing.  Unless you're interested in *why* [README.md](README.md) looks the way it does, consider just moving on to that page.
+This file is mostly pre-writing.  Unless you're interested in *why* [Introduction to Pipelines](https://medium.com/@mattrixman/introduction-to-pipelines-bb7f90dc2bee) looks the way it does, consider just moving on to that page.
 
 ...If you're still here, I'm sorry to have gone on at such length.  I didn't have time to be brief.
 
@@ -63,42 +63,14 @@ But there is a significant serving of complexity to be digested almost immediate
 
 So I would propose we create space for that complexity to sink in and defer the "first steps" for a second post.
 Let's convince them to that walking through a "hello world" is a good idea, rather than just assuming that they're already game.
+Along the way we can set them up to see the forest for the trees.
 
 #### An introduction to Conducto should...
 
 ##### Establish the computational pipeline as a first-class citizen
 
 Conducto is a general purpose solution in a space with many purpose-built solutions.
-So let's make the alternatives look like "just a CI tool" or "just a science tool" and try to hook users that currently only have an inkling that a pipeline is what they need.
-Such a user would be here because they're weighing these alternatives:
-
- - Custom GUIs
-   - supports nontechnical users
-   - high setup cost
-   - high maintenance cost
-   - dependency management: restricted to language ecosystem
-   - time-granulaity: page view
-   - data views: customizable
-
- - Traditional IDEs
-   - low setup cost
-   - discourages custom data views
-   - time-granulaity: breakpoint
-   - dependency management: restricted to language ecosystem
-   - data views: not custom (debug tools)
-
- - Shells/REPLs
-   - time-granulaity: command execution
-   - low setup cost
-   - dependency management: on your own
-   - data views: on your own
-
- - Pipelines
-   - middling setup cost
-   - low maintenance cost
-   - dependency management: flexible
-   - time-granulaity: node (flexible)
-   - data views: customizable
+So let's make the alternatives look like "just a CI tool" or "just a science tool" and try to hook users that currently only have an inkling that a pipeline is what they need.  Users that are already sure will just scroll to the bottom and click "Getting Started", no harm done.
 
 ##### Showcase its strengths
 
