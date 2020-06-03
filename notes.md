@@ -52,7 +52,7 @@ This should happen pretty early in the onboarding process to protect new users f
 
 #### A Dependency Worry
 
-I ran across [a case](https://github.com/conducto/conducto/issues/3) where I couldn't talk to conducto.com.  Maybe it is possible to carry on development using just the cli, or to host something locally, but it wasn't apparent--so I was dead in the water.  Are we planning to support a free conducto-not-in-the-loop workflow?  If not then I fear that having the edit-run-pray loop depend on conducto.com might turn newcomers away.
+I ran across [a case](https://github.com/conducto/conducto/issues/3) where I couldn't talk to conducto.com.  Maybe it is possible to carry on development using just the cli, or to host something locally, but it wasn't apparent--so I was dead in the water.  Are we planning to support a free conducto.com-not-in-the-loop workflow?  If not then I fear that having the edit-run-pray loop depend on conducto.com might turn newcomers away.
 
 ## A Plan Emerges
 
