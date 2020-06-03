@@ -26,13 +26,32 @@ def image_from_grid(grid, number=None):
     for y, row in enumerate(grid):
         for x, cell in enumerate(row):
 
-            # for each pixel in that cell
-            for i in range(cell_size):
-                for j in range(cell_size):
+            # .<-- border_size -->.<--- cell_size --->.   |        |
+            # ^                   .                   .   |        |
+            # |                   .                   .  y_offset  |
+            # border_size         .                   .   |        |
+            # |                   .                   .   |        |
+            # v                   .                   .   v        |
+            # ....................+-------------------+....     y_limit
+            # ^                   |                   |            |
+            # |                   |                   |            |
+            # |                   |                   |            |
+            # cell_size           |   color[cell]     |            |
+            # |                   |                   |            |
+            # |                   |                   |            |
+            # v                   |                   |            v
+            # ....................+-------------------+.............
+            #                     .                   .
+            # ----- x_offset ---->.                   .
+            # ---------------- x_limit -------------->.
+            #
+            x_offset = border_size + x * cell_size
+            x_limit = border_size + x * cell_size + cell_size
+            y_offset = border_size + y * cell_size
+            y_limit = border_size + y * cell_size + cell_size
 
-                    # color based on aliveness
-                    canvas[border_size + x * cell_size + i,
-                           border_size + y * cell_size + j] = color[cell]
+            # color the pixels of each cell based on aliveness
+            canvas[x_offset:x_limit, y_offset:y_limit] = color[cell]
 
     # number this image
     if number or number == 0:
