@@ -7,8 +7,6 @@ For more about conducto, check out https://medium.com/@mattrixman/introduction-t
 
 Ensure that [docker is installed](https://docs.docker.com/engine/install/).
 
-You'll want python 3.6.1 or higher.  It's also often a good idea to work in a virtual environment:
-
 Clone the code:
 
     git clone https://github.com/MatrixManAtYrService/conducto_life.git
